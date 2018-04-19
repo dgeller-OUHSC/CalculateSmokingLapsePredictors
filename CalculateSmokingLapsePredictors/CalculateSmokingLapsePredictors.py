@@ -71,12 +71,11 @@ def CalculateSmartFeatures(dataList:List[SmartTData]) -> List[SmartTData]:
             if (indx > 0):
                 priorItem = orderedSublist[indx - 1];
                 if (IsNotNoneOrNan(priorItem.hrsSnceLstQuit)):
-                    #currentItem.hrsSnceLstQuit = currentItem.emaTakenTime.Subtract(priorItem.emaTakenTime).TotalHours + priorItem.hrsSnceLstQuit;
                     currentItem.hrsSnceLstQuit = (currentItem.emaTakenTime-priorItem.emaTakenTime).total_seconds()/3600  + priorItem.hrsSnceLstQuit
 
             if (currentItem.Day <= 8):
                 #currentItem.DetectingQuitAttempts = false;
-                #use 9th day as an assumed quit attempt (commented out as it might be a bad assumption)
+                #use 9th day as an assumed quit attempt 
                 if (indx < len(orderedSublist) - 1 and orderedSublist[indx + 1].Day == 9):
                     emaTakenDate = datetime.combine(currentItem.emaTakenTime.date(), datetime.min.time())
                     nextMidnight = (emaTakenDate  + timedelta(days = 1))
@@ -95,6 +94,7 @@ def CalculateSmartFeatures(dataList:List[SmartTData]) -> List[SmartTData]:
             #else:
             #    currentItem.DetectingQuitAttempts = true;
 
+            # Uncomment to reset the quit attempts if the particpant says they are ready to quit today
             #if ( IsNotNoneOrNan(currentItem.QuitToday) and currentItem.QuitToday == 1):
             #    hrsSinceQuitDelta =(currentItem.emaTakenTime - (datetime.combine(currentItem.emaTakenTime.date(), datetime.min.time())  + timedelta(days = 1))).total_seconds()/3600 
             #    currentItem.hrsSnceLstQuit =  hrsSinceQuitDelta  
