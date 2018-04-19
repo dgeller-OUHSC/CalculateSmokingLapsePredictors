@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27428.2037
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "CalculateSmokingLapsePredictors", "CalculateSmokingLapsePredictors\CalculateSmokingLapsePredictors.pyproj", "{37130EFE-4310-484C-856F-3AA36699AAC3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{37130EFE-4310-484C-856F-3AA36699AAC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37130EFE-4310-484C-856F-3AA36699AAC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7D9912B2-CF5E-425D-B2E1-4D52094DBACA}
+	EndGlobalSection
+EndGlobal
