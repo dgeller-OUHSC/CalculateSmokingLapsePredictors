@@ -6,17 +6,10 @@ import numpy as np
 import pandas as pd
 import math
 
-#dateNow:datetime = datetime.utcnow()
-#print(dateNow)
-#dateToday = dateNow.date()
-#print(dateToday)
-#print((dateNow-datetime.combine(dateToday, datetime.min.time())).total_seconds() / 3600)
-
-outputFile = 'C:\\Users\\dgeller\\Documents\\Projects\\machine_learning\\data\\Prevail2\\PythonCalc.csv'
-#data = pd.read_csv('C:\\Users\\dgeller\\Documents\\Projects\\machine_learning\\data\\Prevail2\\Prevail 2 AdditionalFeatures.csv')
 data:pd.DataFrame  = pd.read_csv('C:\\Users\\dgeller\\Documents\\Projects\\machine_learning\\data\\Prevail2\\Prevail II - Complete as of 3.30.18.csv')
-#data:pd.DataFrame  = pd.read_csv('C:\\Users\\dgeller\\Documents\\Projects\\machine_learning\\data\\Prevail2\\Fixed_Prevail II Data with demo variables - Complete as of 1.12.18.csv')
-#data:pd.DataFrame = pd.read_csv('C:\\Users\\dgeller\\Documents\\Projects\\machine_learning\\data\\Prevail2\\Fixed_Prevail II Data with demo variables - Complete as of 1.12.18short.csv')
+outputFile = 'C:\\Users\\dgeller\\Documents\\Projects\\machine_learning\\data\\Prevail2\\PythonCalc.csv'
+
+#region "definitions"
 
 class SmartTData(object):
 
@@ -63,15 +56,12 @@ def FilterByStartTime(dataList:List[SmartTData]):
         if(el.StartTimeDecimal is not None): yield el
 
 def CalculateSmartFeatures(dataList:List[SmartTData]) -> List[SmartTData]: 
-    #groupedAndOrderedItems:List[SmartTData] = dataList #(from dlItem in dataList group dlItem by dlItem.Subject into grp select grp.ToList()).ToList()
     outerIndex = 1
     haveShown = False
     uniqueParticipantIds =  sorted(set(dItem.ParticipantId for dItem in dataList))
     for uniqueId in uniqueParticipantIds:
         filteredSublist = filter( lambda dItem: dItem.ParticipantId == uniqueId,dataList )
         orderedSublist:List[SmartTData] = sorted(filteredSublist, key = lambda dItem: dItem.emaTakenTime)  
-        #= dataListlItem.OrderBy(ga => ga.emaTakenTime).Select((ga, indx) => new  ga, indx ).ToList()
-        #region assign hours since last cig and deviation values
         for indx,v in enumerate(orderedSublist):
             currentItem:SmartTData = v 
             currentItem.index = outerIndex
@@ -179,9 +169,8 @@ def CalculateSmartFeatures(dataList:List[SmartTData]) -> List[SmartTData]:
                 currentItem.hrsSnceLstQuit = currentItem.minHrsLastCig
             elif (IsNotNoneOrNan(currentItem.hrsSnceLstQuit) and currentItem.hrsSnceLstQuit > 0 and IsNotNoneOrNan(currentItem.minHrsLastCig) and currentItem.minHrsLastCig > 0 and currentItem.minHrsLastCig < currentItem.hrsSnceLstQuit):
                 currentItem.hrsSnceLstQuit =None 
-            #endregion
 
-        #region set hoursUntilMinLastCig and lapse flag
+        #set hoursUntilMinLastCig and lapse flag
         for osIndex in range(len(orderedSublist)-1,0, -1):
             if (osIndex > 0):
                 priorItem = orderedSublist[osIndex - 1]
@@ -211,9 +200,8 @@ def CalculateSmartFeatures(dataList:List[SmartTData]) -> List[SmartTData]:
                 priorItem.hoursUntilMinLastCig = closestCig
                 priorItem.LapseFlag = ((IsNotNoneOrNan(priorItem.hoursUntilMinLastCig) and priorItem.hoursUntilMinLastCig <= 4 and priorItem.hoursUntilMinLastCig >= 0) \
                     and (IsNotNoneOrNan(priorItem.hrsSnceLstQuit) and  IsNotNoneOrNan(priorItem.maxHoursSinceLastCig ) and priorItem.maxHoursSinceLastCig >= priorItem.hrsSnceLstQuit and priorItem.hrsSnceLstQuit >= 0))
-        #endregion
 
-        #region  iterate through the items in and assign the number of lapses to each record
+        #iterate through the items in and assign the number of lapses to each record
         for osIndex in range(0, len(orderedSublist)):
             thisItem = orderedSublist[osIndex]
             if (osIndex == 0):
@@ -237,7 +225,12 @@ def ReplaceSpaceWithNone(val):
         except ValueError:
             return val
 
+#endregion
+
+#region main Program
+
 dataList:List[SmartTData] = []
+
 for dataItem in data.itertuples():
     newSmartTData = SmartTData()
     newSmartTData.CigsJustNow = dataItem.cigjustnow1 if(not ReplaceSpaceWithNone(dataItem.cigjustnow1) == None) else ReplaceSpaceWithNone(dataItem.cigjustnow2)
@@ -254,25 +247,18 @@ for dataItem in data.itertuples():
 dataList = list(FilterByStartTime(dataList))
 SetListEmaTakenTime(dataList)
 
-#for dlInd in range(200):Vj
-#    print("%d  - %s" % (dataList[dlInd].ParticipantId,dataList[dlInd].CigsJustNow))
 CalculateSmartFeatures(dataList)
-
-#print(len(dataList))
 
 filteredSublist= sorted(dataList, key = lambda dItem: dItem.emaTakenTime)  
 filteredSublist2 = sorted(filteredSublist, key = lambda dItem: dItem.Day)  
 dataList = sorted(filteredSublist2, key = lambda dItem: dItem.ParticipantId)  
-#print(dataList[0].getHeaders())
 
-fh = open("output.csv","w")
-#fh.write("ParticipantId,ScheduledDay,ScheduledTimeDecimal,LapseFlag\n")
-#fh.write(dataList[0].getHeaders())
+fh = open(outputFile,"w")
 fh.write("ParticipantId,QuitToday,hrsSnceLstQuit,index,CigsJustNow,CigsToday1,emaTakenTime,minHrsLastCig,maxHoursSinceLastCig,ScheduledTimeDecimal,StartTimeDecimal,LastSmoke,CigsYest,Day,hoursUntilMinLastCig,fieldUsedForLastCig,LapseFlag,RecordTYpe\n")
 for dlInd in range(len(dataList)):
     currentItem  = dataList[dlInd]
-    if(currentItem.ParticipantId == 4113 and currentItem.Day == 8 and currentItem.StartTimeDecimal == 20.008):
-        print(currentItem.getRows())
+    #if(currentItem.ParticipantId == 4113 and currentItem.Day == 8 and currentItem.StartTimeDecimal == 20.008):
+    #    print(currentItem.getRows())
     #fh.write("%d,%d,%s,%s\n" % (dataList[dlInd].ParticipantId,dataList[dlInd].Day, dataList[dlInd].ScheduledTimeDecimal, 0 if( dataList[dlInd].LapseFlag == False) else 1 ))
     #fh.write(dataList[dlInd].getRows())
     #fh.write(" %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % 
@@ -298,3 +284,4 @@ for dlInd in range(len(dataList)):
 
 fh.close()
 
+#endregion
